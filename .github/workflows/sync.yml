@@ -1,0 +1,34 @@
+name: Nightly fork sync
+on:
+  schedule:
+    - cron: "17 2 * * *"   # 02:17 UTC nightly
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma-separated slugs (blank = all)"
+        required: false
+permissions:
+  contents: read
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync forks (write mode when FORK_SYNC_TOKEN is set, otherwise read-only check)
+        env:
+          GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN || github.token }}
+          HAS_PAT: ${{ secrets.FORK_SYNC_TOKEN != '' }}
+        run: |
+          ARGS="--pace 1"
+          if [ -n "${{ github.event.inputs.only }}" ]; then ARGS="$ARGS --only ${{ github.event.inputs.only }}"; fi
+          if [ "$HAS_PAT" != "true" ]; then
+            echo "::notice::FORK_SYNC_TOKEN secret not set - running read-only drift check. Forks are synced by the box-side routine (see README)."
+            ARGS="$ARGS --dry-run"
+          fi
+          python3 scripts/sync.py $ARGS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sync-report
+          path: reports/last-sync.json
