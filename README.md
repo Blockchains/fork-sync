@@ -23,6 +23,41 @@ python3 scripts/sync.py --only viem,wagmi  # subset
 
 Each run writes `reports/last-sync.json`, which is uploaded as the `sync-report` artifact, plus a table in the job summary.
 
+<!-- blocks:start -->
+## Use as a building block
+
+> **For AI agents and builders:** read [`AGENTS.md`](AGENTS.md) (setup, commands, structure, rules), [`llms.txt`](llms.txt) (doc map) and the machine-readable [`blocks.json`](blocks.json) ([schema](https://github.com/Blockchains/.github/blob/main/docs/BLOCKS-SCHEMA.md)). How all Blockchains blocks fit together: **[Build with Blocks](https://github.com/Blockchains/.github/blob/main/docs/BUILD-WITH-BLOCKS.md)** · org catalogue: [https://blockchains.github.io/blocks.json](https://blockchains.github.io/blocks.json).
+
+**What it exports**
+
+| Export | Type | Install / access |
+|---|---|---|
+| `forks.json` | file | `slug, fork, upstream, upstream_branch, branch, mode, tracking_branch, category, license, wave` |
+| `scripts/sync.py` | cli | `python3 scripts/sync.py [--dry-run] [--only a,b] [--pace SECONDS]` |
+| `Nightly fork sync` | github-action | `02:17 UTC + workflow_dispatch (input: only)` |
+
+**Minimal example**
+
+```bash
+git clone https://github.com/Blockchains/fork-sync && cd fork-sync
+python3 scripts/sync.py --dry-run                    # read-only: which forks are behind
+jq -r '.[] | select(.category=="oracles") | .fork' forks.json
+```
+
+**Inputs → outputs**
+
+- In: `forks.json` (JSON); `FORK_SYNC_TOKEN` (secret) enables real syncs in Actions; otherwise read-only drift check
+- Out: `reports/last-sync.json` (JSON artifact) per-fork result; `synced forks` (GitHub)
+
+**Composes with**
+
+- [Blockchains/blockchainlab-index](https://github.com/Blockchains/blockchainlab-index): indexes the synced forks nightly, after this runs
+- [Blockchains/awesome-blockchainlab](https://github.com/Blockchains/awesome-blockchainlab): list of the same forks
+- [Blockchains/grokhack-index](https://github.com/Blockchains/grokhack-index): syncs its own fork list best-effort
+
+**Versioning & stability:** `stable`. forks.json entries are additive; archived forks must be removed (merge-upstream fails on archived repos).
+<!-- blocks:end -->
+
 ## Licence
 
 No licence file has been added yet, so default copyright applies (all rights reserved). Each fork keeps its upstream licence.

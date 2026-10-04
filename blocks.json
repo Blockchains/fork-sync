@@ -1,0 +1,91 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Blockchains/.github/main/docs/blocks.schema.json",
+  "schema_version": "1.0",
+  "name": "fork-sync",
+  "repo": "Blockchains/fork-sync",
+  "summary": "Keeps the curated Blockchains forks in line with their upstreams: forks.json lists each fork, upstream, branch and mode (merge via the merge-upstream API, or tracking for forks whose GitHub parent differs from the real upstream); nightly workflow + box-side script.",
+  "kind": [
+    "automation",
+    "dataset",
+    "cli"
+  ],
+  "stability": "stable",
+  "license": "NOASSERTION",
+  "entrypoints": [
+    {
+      "type": "file",
+      "name": "forks.json",
+      "ref": "forks.json",
+      "usage": "slug, fork, upstream, upstream_branch, branch, mode, tracking_branch, category, license, wave"
+    },
+    {
+      "type": "cli",
+      "name": "scripts/sync.py",
+      "ref": "scripts/sync.py",
+      "usage": "python3 scripts/sync.py [--dry-run] [--only a,b] [--pace SECONDS]"
+    },
+    {
+      "type": "github-action",
+      "name": "Nightly fork sync",
+      "ref": ".github/workflows/sync.yml",
+      "usage": "02:17 UTC + workflow_dispatch (input: only)"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "forks.json",
+      "type": "JSON"
+    },
+    {
+      "name": "FORK_SYNC_TOKEN",
+      "type": "secret",
+      "description": "enables real syncs in Actions; otherwise read-only drift check"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "reports/last-sync.json",
+      "type": "JSON artifact",
+      "description": "per-fork result"
+    },
+    {
+      "name": "synced forks",
+      "type": "GitHub"
+    }
+  ],
+  "deps": [
+    "python3",
+    "gh"
+  ],
+  "compatible_with": [
+    {
+      "repo": "Blockchains/blockchainlab-index",
+      "how": "indexes the synced forks nightly, after this runs"
+    },
+    {
+      "repo": "Blockchains/awesome-blockchainlab",
+      "how": "list of the same forks"
+    },
+    {
+      "repo": "Blockchains/grokhack-index",
+      "how": "syncs its own fork list best-effort"
+    }
+  ],
+  "tests": {
+    "command": "python3 scripts/sync.py --dry-run",
+    "ci": ".github/workflows/sync.yml",
+    "network": true
+  },
+  "env": [
+    {
+      "name": "FORK_SYNC_TOKEN",
+      "required": false,
+      "purpose": "repo secret; PAT with repo + workflow on Blockchains"
+    }
+  ],
+  "docs": {
+    "readme": "README.md",
+    "agents": "AGENTS.md",
+    "llms": "llms.txt"
+  }
+}
