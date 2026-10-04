@@ -22,3 +22,14 @@ python3 scripts/sync.py --only viem,wagmi  # subset
 - Without the secret, it runs a **read-only drift check** using the default `GITHUB_TOKEN`, which can't write to other repositories. Real syncs then come from the box-side routine (`python3 scripts/sync.py` with a logged-in `gh`).
 
 Each run writes `reports/last-sync.json`, which is uploaded as the `sync-report` artifact, plus a table in the job summary.
+
+## Licence
+
+No licence file has been added yet, so default copyright applies (all rights reserved). Each fork keeps its upstream licence.
+
+## Contributing
+
+Issues and pull requests are welcome. Please read the [contributing guide](https://github.com/Blockchains/.github/blob/main/CONTRIBUTING.md), [code of conduct](https://github.com/Blockchains/.github/blob/main/CODE_OF_CONDUCT.md) and [security policy](https://github.com/Blockchains/.github/blob/main/SECURITY.md) first.
+
+---
+Built by Blockchain Lab — [blockchainlab.com](https://blockchainlab.com/?utm_source=github&utm_medium=readme&utm_campaign=fork-sync)
